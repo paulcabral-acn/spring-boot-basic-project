@@ -1,6 +1,7 @@
 package com.example;
 
 import java.util.List;
+import java.net.URI;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import jakarta.validation.Valid;
 
@@ -28,7 +30,12 @@ public class StudentController {
     @PostMapping
     public ResponseEntity<StudentDto> create(@Valid @RequestBody StudentDto studentDto) {
         Student saved = studentService.create(studentDto.toEntity());
-        return ResponseEntity.ok(StudentDto.fromEntity(saved));
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(saved.getId())
+                .toUri();
+        return ResponseEntity.created(location).body(StudentDto.fromEntity(saved));
     }
 
     @GetMapping
