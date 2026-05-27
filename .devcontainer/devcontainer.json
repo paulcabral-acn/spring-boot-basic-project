@@ -14,10 +14,14 @@
 	// Beware: features are not supported on all platforms and may have unintended side-effects.
 	"features": {
 		"ghcr.io/devcontainers/features/java:1": {
-			"version": "17",
+			"version": "latest",
 			"installMaven": true,
-			"mavenVersion": "3.9"
+			"mavenVersion": "latest"
+		}, 
+		"ghcr.io/siri404/devcontainer-ai-features/gemini-cli:1": {
+			"version": "latest"
 		}
+		
 	},
 	"customizations": {
 		"vscode": {
