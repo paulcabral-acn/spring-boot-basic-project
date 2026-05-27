@@ -1,6 +1,7 @@
 package com.example.service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -51,8 +52,8 @@ public class StudentService {
 
     public boolean delete(@NonNull Long id) {
         return repository.findById(id)
-                .map((@NonNull var existing) -> {
-                    repository.delete(existing);
+                .map(existing -> {
+                    repository.delete(Objects.requireNonNull(existing));
                     return true;
                 })
                 .orElse(false);
