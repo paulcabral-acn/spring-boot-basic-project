@@ -10,10 +10,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.never;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.lang.NonNull;
+
+import com.example.entity.Student;
+import com.example.repository.StudentRepository;
+import com.example.service.StudentService;
 
 @ExtendWith(MockitoExtension.class)
 public class StudentServiceTest {
@@ -21,20 +25,23 @@ public class StudentServiceTest {
     @Mock
     private StudentRepository repository;
 
-    @InjectMocks
+    @SuppressWarnings("null")
+    @NonNull
     private StudentService studentService;
 
+    @SuppressWarnings("null")
+    @NonNull
     private Student student;
 
     @BeforeEach
-    @SuppressWarnings("unused")
     void setUp() {
+        studentService = new StudentService(repository, "example.com");
         student = new Student(1L, "Jane Doe", "jane.doe@example.com");
     }
 
     @Test
     void createShouldSaveAndReturnStudent() {
-        given(repository.save(any(Student.class))).willReturn(student);
+        given(repository.save(student)).willReturn(student);
 
         Student result = studentService.create(student);
 
@@ -63,14 +70,13 @@ public class StudentServiceTest {
     }
 
     @Test
-    void updateShouldReturnUpdatedStudentWhenFound() {
-        Student updatedRequest = new Student(null, "John Doe", "john.doe@example.com");
+    void updateNameShouldUpdateNameAndDeriveEmail() {
         Student updatedStudent = new Student(1L, "John Doe", "john.doe@example.com");
 
         given(repository.findById(1L)).willReturn(Optional.of(student));
-        given(repository.save(any(Student.class))).willReturn(updatedStudent);
+        given(repository.save(student)).willReturn(updatedStudent);
 
-        Optional<Student> result = studentService.update(1L, updatedRequest);
+        Optional<Student> result = studentService.updateName(1L, "John Doe");
 
         assertThat(result).contains(updatedStudent);
         then(repository).should().findById(1L);
@@ -80,14 +86,15 @@ public class StudentServiceTest {
     }
 
     @Test
-    void updateShouldReturnEmptyWhenNotFound() {
+    @SuppressWarnings("null")
+    void updateNameShouldReturnEmptyWhenNotFound() {
         given(repository.findById(1L)).willReturn(Optional.empty());
 
-        Optional<Student> result = studentService.update(1L, student);
+        Optional<Student> result = studentService.updateName(1L, "John Doe");
 
         assertThat(result).isEmpty();
         then(repository).should().findById(1L);
-        then(repository).should(never()).save(any());
+        then(repository).should(never()).save(any(Student.class));
     }
 
     @Test
@@ -102,6 +109,7 @@ public class StudentServiceTest {
     }
 
     @Test
+    @SuppressWarnings("null")
     void deleteShouldReturnFalseWhenNotFound() {
         given(repository.findById(1L)).willReturn(Optional.empty());
 
@@ -109,7 +117,7 @@ public class StudentServiceTest {
 
         assertThat(result).isFalse();
         then(repository).should().findById(1L);
-        then(repository).should(never()).delete(any());
+        then(repository).should(never()).delete(any(Student.class));
     }
 
     @Test
