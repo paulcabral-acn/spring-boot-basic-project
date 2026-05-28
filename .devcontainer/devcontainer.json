@@ -16,8 +16,9 @@
 		"ghcr.io/devcontainers/features/java:1": {
 			"version": "2l",
 			"installMaven": true,
-			"mavenVersion": "latest"
-		}
+			"mavenVersion": "3.9.6"
+		},
+		"ghcr.io/devcontainers/features/copilot-cli:1": {}
 	},
 	"customizations": {
 		"vscode": {
