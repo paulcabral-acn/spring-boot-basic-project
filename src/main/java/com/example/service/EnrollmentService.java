@@ -1,26 +1,55 @@
 package com.example.service;
 
+import com.example.entity.Enrollment;
+import com.example.entity.Student;
+import com.example.entity.Course;
+import com.example.repository.EnrollmentRepository;
+import com.example.repository.StudentRepository;
+import com.example.repository.CourseRepository;
 import org.springframework.stereotype.Service;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class EnrollmentService {
-    // Maps Course ID to a Set of Student IDs
-    private final Map<Long, Set<Long>> courseToStudents = new ConcurrentHashMap<>();
-    // Maps Student ID to a Set of Course IDs (Internal index for lookup)
-    private final Map<Long, Set<Long>> studentToCourses = new ConcurrentHashMap<>();
 
+    private final EnrollmentRepository enrollmentRepository;
+    private final StudentRepository studentRepository;
+    private final CourseRepository courseRepository;
+
+    public EnrollmentService(EnrollmentRepository enrollmentRepository,
+                             StudentRepository studentRepository,
+                             CourseRepository courseRepository) {
+        this.enrollmentRepository = enrollmentRepository;
+        this.studentRepository = studentRepository;
+        this.courseRepository = courseRepository;
+    }
+
+    @Transactional
     public void enroll(Long courseId, Long studentId) {
-        courseToStudents.computeIfAbsent(courseId, k -> ConcurrentHashMap.newKeySet()).add(studentId);
-        studentToCourses.computeIfAbsent(studentId, k -> ConcurrentHashMap.newKeySet()).add(courseId);
+        if (enrollmentRepository.existsByCourseIdAndStudentId(courseId, studentId)) {
+            return; // Maintain idempotency
+        }
+
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new IllegalArgumentException("Student not found"));
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found"));
+
+        enrollmentRepository.save(new Enrollment(student, course));
     }
 
     public Set<Long> getStudentIdsInCourse(Long courseId) {
-        return courseToStudents.getOrDefault(courseId, Collections.emptySet());
+        return enrollmentRepository.findByCourseId(courseId).stream()
+                .map(enrollment -> enrollment.getStudent().getId())
+                .collect(Collectors.toSet());
     }
 
     public Set<Long> getCourseIdsForStudent(Long studentId) {
-        return studentToCourses.getOrDefault(studentId, Collections.emptySet());
+        return enrollmentRepository.findByStudentId(studentId).stream()
+                .map(enrollment -> enrollment.getCourse().getId())
+                .collect(Collectors.toSet());
     }
 }
