@@ -3,13 +3,13 @@
 //
 // See https://aka.ms/devcontainer.json for more information.
 {
-	"name": "Ona",
+	"name": "Java Codespaces",
 	// Use "image": "mcr.microsoft.com/devcontainers/base:2.0.4-noble",
 	// instead of the build to use a pre-built image.
 	"build": {
-        "context": ".",
-        "dockerfile": "Dockerfile"
-    },
+		"context": ".",
+		"dockerfile": "Dockerfile"
+	},
 	// Features add additional features to your environment. See https://containers.dev/features
 	// Beware: features are not supported on all platforms and may have unintended side-effects.
 	"features": {
@@ -24,7 +24,11 @@
 		"vscode": {
 			"settings": {
 				"spring-boot.ls.check-spring-boot-version": false
-			}
+			},
+			"extensions": [
+				"googlecloudtools.cloudcode", // Gemini
+				"vmware.vscode-boot-dev-pack" // Spring Boot Tools, Spring Boot Dashboard, and the Initializr
+			]
 		}
 	}
 }
